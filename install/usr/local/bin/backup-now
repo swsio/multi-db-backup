@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo '** Performing Manual Backup'
+/usr/local/bin/db-backup NOW

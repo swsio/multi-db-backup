@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+source /assets/functions/00-container
+
+PROCESS_NAME="s3-cleanup"
+
+# Usage: clean-s3 "bucketname" "30 days"
+TZ=UTC
+
+s3cmd ls s3://$1 --access_key=${S3_KEY_ID} --secret_key=${S3_KEY_SECRET} --host=${S3_HOST} --host-bucket=${S3_HOST}| while read -r line;
+  do
+    createDate=`echo $line|awk {'print $1" "$2'}`
+    createDate=`date -d"$createDate" +%s`
+    olderThan=`date -d"-$2" +%s`
+    if [[ $createDate -lt $olderThan ]]
+      then 
+        fileName=`echo $line|awk {'print $4'}`
+        echo $fileName
+        if [[ $fileName != "" ]]
+          then
+            s3cmd del "$fileName" --access_key=${S3_KEY_ID} --secret_key=${S3_KEY_SECRET} --host=${S3_HOST} --host-bucket=${S3_HOST}
+            print_debug "$fileName"
+        fi
+    fi
+  done;
+
+## Test S3 connectivity from Shell with this command
+
+# s3cmd ls s3://${S3_BUCKET}/${S3_PATH}/ --access_key=${S3_KEY_ID} --secret_key=${S3_KEY_SECRET} --host=${S3_HOST} --host-bucket=${S3_HOST}
+
+
+  
