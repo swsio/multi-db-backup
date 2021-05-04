@@ -1,0 +1,81 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: multi-db-backup
+  name: multi-db-backup
+spec:
+  replicas: 1
+  selector:
+    app: multi-db-backup
+    deploymentconfig: multi-db-backup
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: multi-db-backup
+        deploymentconfig: multi-db-backup
+    spec:
+      containers:
+        - env:
+            - name: BACKUP_LOCATION
+              value: FILESYSTEM
+            - name: COMPRESSION
+              value: GZ
+            - name: COMPRESSION_LEVEL
+              value: '3'
+            - name: DB_TYPE
+              value: mongo
+            - name: DB_HOST
+              value: mongodb
+            - name: DB_NAME
+              value: sampledb
+            - name: DB_USER
+              value: dbuser
+            - name: DB_PASS
+              value: Pa$$w0rd
+            - name: DB_DUMP_FREQ
+              value: '5'
+            - name: DB_DUMP_BEGIN
+              value: '+1'
+            - name: MD5
+              value: 'TRUE'
+            - name: PARALLEL_COMPRESSION
+              value: 'TRUE'
+            - name: SPLIT_DB
+              value: 'TRUE'
+            - name: TZ
+              value: Europe/Berlin
+            - name: DB_CLEANUP_TIME
+              value: '1440'
+          image: 'quay.io/agileio/multi-db-backup:latest'
+          imagePullPolicy: Always
+          name: multi-db-backup
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /backup
+              name: backup
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: backup
+          persistentVolumeClaim:
+            claimName: backup
+  test: false
+  triggers:
+    - type: ConfigChange
