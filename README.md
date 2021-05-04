@@ -20,7 +20,7 @@ Currently backs up CouchDB, InfluxDB, MySQL, MongoDB, Postgres, Redis servers, M
 
 ## Author
 
-[Florian Fröhlich - SWS Computersysteme AG](florian.froehlich@sws.de)
+[Florian Fröhlich - SWS Computersysteme AG](mailto:florian.froehlich@sws.de)
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -35,6 +35,8 @@ Currently backs up CouchDB, InfluxDB, MySQL, MongoDB, Postgres, Redis servers, M
 - [Maintenance](#maintenance)
   - [Shell Access](#shell-access)
     - [Custom Scripts](#custom-scripts)
+    - [NOTE](#NOTE)
+
 
 ## Prerequisites
 
