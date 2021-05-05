@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM quay.io/swsmirror/alpine:3.13
 LABEL maintainer="Florian Froehlich (florian.froehlich@sws.de)"
 
 ### Set Environment Variables

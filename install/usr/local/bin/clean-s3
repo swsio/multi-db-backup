@@ -15,7 +15,7 @@ s3cmd ls s3://$1 --access_key=${S3_KEY_ID} --secret_key=${S3_KEY_SECRET} --host=
     if [[ $createDate -lt $olderThan ]]
       then 
         fileName=`echo $line|awk {'print $4'}`
-        echo $fileName
+#        print_notice $fileName
         if [[ $fileName != "" ]]
           then
             s3cmd del "$fileName" --access_key=${S3_KEY_ID} --secret_key=${S3_KEY_SECRET} --host=${S3_HOST} --host-bucket=${S3_HOST}
