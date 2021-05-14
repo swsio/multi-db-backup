@@ -1,1 +1,3 @@
 /.idea/
+examples/openshift/influxdb-s3-iotstack-dc.yaml
+examples/openshift/mysql-S3-iotstack-dc.yaml
