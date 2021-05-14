@@ -149,8 +149,14 @@ backup_influx() {
     fi
     for DB in $DB_NAME; do
         target=influx_${DB}_${dbhost}_${now}
-        influxd backup ${influx_compression} -database $DB -host ${dbhost}:${dbport} ${tmpdir}/${target}
+        targetcompression=${target}
+        influxd backup ${influx_compression} -database $DB -host ${dbhost}:${dbport}  ${tmpdir}/${targetcompression}
         exit_code=$?
+        compression
+        cd ${tmpdir}/${targetcompression}
+        tar cf -  .| $dumpoutput > ${tmpdir}/${target}
+        cd ${tmpdir}
+        rm -rf ${tmpdir}/${targetcompression}/
         generate_md5
         move_backup
     done

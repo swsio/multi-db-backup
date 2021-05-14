@@ -25,6 +25,7 @@ RUN apk update && \
             htop \
             tzdata \
             vim \
+            tar \
             && \
     rm -rf /var/cache/apk/* && \
     rm -rf /etc/logrotate.d/acpid && \
