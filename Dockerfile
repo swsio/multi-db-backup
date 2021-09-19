@@ -1,4 +1,4 @@
-FROM quay.io/swsmirror/alpine:3.13
+FROM quay.io/swsmirror/alpine:3.14
 LABEL maintainer="Florian Froehlich (florian.froehlich@sws.de)"
 
 ### Set Environment Variables
@@ -64,7 +64,9 @@ RUN apk update && \
                xz \
                zstd \
                && \
-    \
+    rm -rf /var/cache/apk/* && \
+    rm -rf /etc/logrotate.d/acpid && \
+    rm -rf /root/.cache /root/.subversion && \
     cd /usr/src && \
     \
     apkArch="$(apk --print-arch)"; \
@@ -93,7 +95,7 @@ RUN apk update && \
     rm -rf /usr/src/* && \
     rm -rf /tmp/* /var/cache/apk/* && \
 # Add coreutils
-    apk add --update coreutils && rm -rf /var/cache/apk/* && \
+    apk add --no-cache --update coreutils && rm -rf /var/cache/apk/* && \
     \
 ### Add timezone
     cp -R /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
@@ -111,8 +113,11 @@ RUN apk add --no-cache python2 && \
     && wget https://github.com/s3tools/s3cmd/releases/download/v${S3CMD_CURRENT_VERSION}/s3cmd-${S3CMD_CURRENT_VERSION}.zip \
     && unzip s3cmd-${S3CMD_CURRENT_VERSION}.zip -d /opt/ \
     && ln -s $(find /opt/ -name s3cmd) /usr/bin/s3cmd \
-    && ls /usr/bin/s3cmd
-
+    && ls /usr/bin/s3cmd \
+    && \
+    rm -rf /var/cache/apk/* && \
+    rm -rf /etc/logrotate.d/acpid && \
+    rm -rf /root/.cache /root/.subversion
 
 
 ### Setup
@@ -134,10 +139,10 @@ RUN adduser -S backup --home /home/backup --uid 1001        && \
     chown backup:0 -R /etc/localtime                        && \
     chmod -R g=u /etc/localtime                             && \
     chown backup:0 -R /etc/timezone                         && \
-    chmod -R g=u /etc/timezone                              
+    chmod -R g=u /etc/timezone
 
 #RUN chown backup:0 -R
-#RUN chmod -R g=u 
+#RUN chmod -R g=u
 
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh

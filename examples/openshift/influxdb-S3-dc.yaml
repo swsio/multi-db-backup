@@ -1,0 +1,109 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: multi-db-backup-influxdb
+  name: multi-db-backup-influxdb
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: multi-db-backup-influxdb
+    deploymentconfig: multi-db-backup-influxdb
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: multi-db-backup-influxdb
+        deploymentconfig: multi-db-backup-influxdb
+    spec:
+      containers:
+        - env:
+            - name: BACKUP_LOCATION
+              value: S3
+            - name: S3_BUCKET
+              value: iot-stack
+            - name: S3_KEY_SECRET
+              value: 'SECRET'
+            - name: S3_KEY_ID
+              value: 'KEY'
+            - name: S3_HOST
+              value: 'S3HOST'
+            - name: S3_PROTOCOL
+              value: https
+            - name: S3_URI_STYLE
+              value: VIRTUALHOST
+            - name: S3_PATH
+              value: 'S3FOLDER'
+            - name: TZ
+              value: Europe/Berlin
+            - name: DB_CLEANUP_TIME_S3
+              value: 7 days
+            - name: DB_DUMP_FREQ
+              value: '1440'
+            - name: DB_DUMP_BEGIN
+              value: '2030'
+            - name: DB_TYPE
+              value: influx
+            - name: DB_HOST
+              value: influxdb
+            - name: DB_PORT
+              value: '8088'
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: INFLUXDB_USER
+                  name: stack-config
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: INFLUXDB_DB
+                  name: stack-config
+            - name: DB_PASS
+              valueFrom:
+                configMapKeyRef:
+                  key: INFLUXDB_USER_PASSWORD
+                  name: stack-config
+            - name: SPLIT_DB
+              value: 'TRUE'
+            - name: PARALLEL_COMPRESSION
+              value: 'TRUE'
+            - name: MD5
+              value: 'TRUE'
+            - name: COMPRESSION
+              value: GZ
+          image: 'quay.io/agileio/multi-db-backup:v1.1'
+          imagePullPolicy: Always
+          name: multi-db-backup-influxdb
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /backup
+              name: multi-db-backup
+            - mountPath: /tmp/backups
+              name: influxdb-temp
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - emptyDir: {}
+          name: multi-db-backup
+        - name: influxdb-temp
+          persistentVolumeClaim:
+            claimName: db-backup-influxdb
+  test: false
+  triggers:
+    - type: ConfigChange

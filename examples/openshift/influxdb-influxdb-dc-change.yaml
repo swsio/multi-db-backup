@@ -1,0 +1,20 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: influxdb
+  name: influxdb
+spec:
+  ..
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: influxdb
+        deploymentconfig: influxdb
+    spec:
+      containers:
+        - env:
+            - name: INFLUXDB_BIND_ADDRESS
+              value: ':8088'
+..
